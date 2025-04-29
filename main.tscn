@@ -1,0 +1,61 @@
+[gd_scene load_steps=6 format=3 uid="uid://doijcsdhijfim"]
+
+[ext_resource type="Script" uid="uid://tgf87tty8nws" path="res://main.gd" id="1_h2nex"]
+[ext_resource type="Texture2D" uid="uid://cm0acoqwd507c" path="res://Assets/hand.png" id="3_h2yge"]
+[ext_resource type="Texture2D" uid="uid://edl8qkve7yok" path="res://Assets/background.png" id="4_1bvp3"]
+[ext_resource type="PackedScene" uid="uid://bh1aer6141ymb" path="res://spawner.tscn" id="4_lquwl"]
+[ext_resource type="PackedScene" uid="uid://dpjk1sgdp3poe" path="res://info_panel.tscn" id="5_lquwl"]
+
+[node name="Main" type="Node2D"]
+script = ExtResource("1_h2nex")
+
+[node name="Chips" type="Node" parent="."]
+
+[node name="Platforms" type="Node" parent="."]
+
+[node name="Particles" type="Node" parent="."]
+
+[node name="ColorRect" type="ColorRect" parent="."]
+visible = false
+offset_left = 96.0
+offset_top = 48.0
+offset_right = 1824.0
+offset_bottom = 816.0
+
+[node name="Hand" type="Sprite2D" parent="."]
+z_index = -2
+position = Vector2(264, 936)
+texture = ExtResource("3_h2yge")
+
+[node name="Background" type="Sprite2D" parent="."]
+z_index = -2
+position = Vector2(956, 404)
+texture = ExtResource("4_1bvp3")
+
+[node name="ChipCoolTimer" type="Timer" parent="."]
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="InfoPanel" parent="CanvasLayer" instance=ExtResource("5_lquwl")]
+z_index = 2
+offset_left = 524.0
+offset_top = 840.0
+offset_right = 524.0
+offset_bottom = 840.0
+
+[node name="Points" type="RichTextLabel" parent="CanvasLayer"]
+offset_left = 1000.0
+offset_top = 850.0
+offset_right = 1838.0
+offset_bottom = 1155.0
+theme_override_font_sizes/normal_font_size = 128
+bbcode_enabled = true
+text = "[right]Score[/right]"
+
+[node name="SpawnerCanvas" type="CanvasLayer" parent="."]
+layer = 10
+
+[node name="Spawner" parent="SpawnerCanvas" instance=ExtResource("4_lquwl")]
+visible = false
+
+[connection signal="timeout" from="ChipCoolTimer" to="." method="_cool_chips"]

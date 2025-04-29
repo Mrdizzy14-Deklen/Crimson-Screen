@@ -1,0 +1,22 @@
+[gd_scene load_steps=3 format=3 uid="uid://2hry4vckn2wd"]
+
+[ext_resource type="Script" uid="uid://dske6l8fv6kxo" path="res://particle.gd" id="1_kgu82"]
+[ext_resource type="Texture2D" uid="uid://bqwtwy1k06amf" path="res://icon.svg" id="2_pxd2d"]
+
+[node name="particle" type="Node2D"]
+z_index = 2
+script = ExtResource("1_kgu82")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+scale = Vector2(1.5, 1.5)
+texture = ExtResource("2_pxd2d")
+
+[node name="Value" type="RichTextLabel" parent="."]
+offset_left = -200.0
+offset_top = 15.0
+offset_right = 200.0
+offset_bottom = 103.0
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/normal_font_size = 64
+bbcode_enabled = true
+text = "[center]1000"

@@ -1,0 +1,46 @@
+[gd_scene load_steps=2 format=3 uid="uid://cxw8hipvia3s7"]
+
+[sub_resource type="GDScript" id="GDScript_b0udf"]
+script/source = "extends Node
+
+
+class_name Chip
+
+
+const CHIP = preload(\"res://object.tscn\") # Base scene
+
+
+# Define dictionaries
+const NAMES = [\"Joe\", \"Bob\"]
+enum Personalities {AGGRESSIVE}
+const SPRITES = [preload(\"res://Assets/Sprites/default.tres\")]
+const FUNCTIONS = []
+
+# Define customizability variables
+var chip_name: String = \"\"
+var personality
+var sprite: SpriteFrames
+var functions: Array
+
+
+## Creates a new chip
+static func new_chip(random: bool):
+	
+	var new_chip = CHIP.instantiate()
+	
+	if random:
+		new_chip.random_chip()
+	
+	return new_chip
+
+
+func random_chip():
+	chip_name = NAMES[Global.rng.randi_range(0, NAMES.size() - 1)]
+	personality = Personalities.values().pick_random()
+	sprite = SPRITES[Global.rng.randi_range(0, SPRITES.size() - 1)]
+	#functions.append(FUNCTIONS[Global.rng.randi_range(0, FUNCTIONS.size())])
+	print_debug(chip_name, \" \", personality)
+"
+
+[node name="Chip" type="Node2D"]
+script = SubResource("GDScript_b0udf")
