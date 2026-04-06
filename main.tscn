@@ -58,4 +58,9 @@ layer = 10
 [node name="Spawner" parent="SpawnerCanvas" instance=ExtResource("4_lquwl")]
 visible = false
 
+[node name="RandomSpeechTimer" type="Timer" parent="."]
+wait_time = 30.0
+autostart = true
+
 [connection signal="timeout" from="ChipCoolTimer" to="." method="_cool_chips"]
+[connection signal="timeout" from="RandomSpeechTimer" to="." method="_speech_trigger"]

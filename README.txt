@@ -23,4 +23,4 @@
 		- Demons cost an amount of points
 		- You can get specialized demons if you have 'exactly' a 
 		  specific amount, or are within a range
-		- 
+		- Some demons are cold and require more use to stay at a healthy temp

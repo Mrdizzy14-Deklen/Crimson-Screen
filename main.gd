@@ -7,6 +7,7 @@ extends Node2D
 @onready var chips: Node = $Chips
 @onready var particles: Node = $Particles
 @onready var spawner: Control = $CanvasLayer/Spawner
+@onready var random_speech_timer: Timer = $RandomSpeechTimer
 
 
 const PLATFORM = preload("res://platform.tscn")
@@ -47,6 +48,9 @@ func _unhandled_input(event: InputEvent) -> void:
 func updateScore():
 	points.text = str("[right]", Global.score, "[/right]")
 	pass
+
+
+
 ### Scene Setup Fucntions
 
 
@@ -108,4 +112,13 @@ func newParticle(
 	particles.add_child(new_par)
 	new_par.global_position = _target
 	Global.waveStart.emit()
+	pass
+
+
+func _speech_trigger() -> void:
+	random_speech_timer.wait_time = Global.rng.randf_range(15,30)
+	if chips.get_child_count() > 4:
+		var temp = chips.get_child(Global.rng.randi_range(4, chips.get_child_count() - 1))
+		print_debug(temp.chip_name)
+		temp._speech_trigger()
 	pass

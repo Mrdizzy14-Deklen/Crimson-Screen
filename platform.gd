@@ -11,5 +11,8 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
-	visible = Global.is_dragging
+	if Global.is_dragging:
+		visible = true
+	else:
+		visible = false
 	pass

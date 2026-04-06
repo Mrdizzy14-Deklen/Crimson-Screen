@@ -1,7 +1,7 @@
 extends Function
 
 
-## Sends the particle up or down alternating
+## Sends the particle left or right alternating
 class_name  FunctionLRSwitch
 
 

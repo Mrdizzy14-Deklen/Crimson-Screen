@@ -27,7 +27,7 @@ var particle_move_time = 0.25
 
 
 var is_dragging = false
-
+var dragging: Node2D
 
 ## Checks if a particle is in the system
 var computing = false

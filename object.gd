@@ -11,7 +11,6 @@ const DOWN_ARROW = [preload("res://Assets/Sprites/down_arrow.tres"), preload("re
 @onready var bottom_level_sprite: AnimatedSprite2D = $BottomLevel
 @onready var top_level_sprite: AnimatedSprite2D = $TopLevel
 @onready var wear_timer: Timer = $WearTimer
-@onready var speech_timer: Timer = $SpeechTimer
 @onready var speech_bubble: Sprite2D = $SpeechBubble
 @onready var score_amount: RichTextLabel = $ScoreAmount
 
@@ -104,6 +103,7 @@ static func new_chip(preset: String = "", location = 0):
 	
 	var new_chip = CHIP.instantiate()
 	
+	# Choose a preset
 	match preset:
 		"down_tile":
 			new_chip.chip_name = "Down Plate"
@@ -121,12 +121,13 @@ static func new_chip(preset: String = "", location = 0):
 
 static func make_copy(old_chip: Chip):
 	
+	# Copy over basic info
 	var new_chip = CHIP.instantiate()
 	new_chip.chip_name = old_chip.chip_name
 	new_chip.mood = old_chip.mood
 	new_chip.sprite = old_chip.sprite
 	
-	# Set chip functions
+	# copy over chip functions
 	for i in old_chip.functions:
 		new_chip.functions.append(i)
 		if i.score_function:
@@ -139,83 +140,116 @@ static func make_copy(old_chip: Chip):
 
 
 func _ready():
+	
+	# Set sprite animation
 	bottom_level_sprite.sprite_frames = sprite[0]
 	bottom_level_sprite.play()
 	top_level_sprite.sprite_frames = sprite[1]
 	top_level_sprite.play()
-	wear_timer.wait_time = 0.1#Global.particle_move_time * 2
-	if mood:
-		speech_timer.wait_time = Global.rng.randf_range(5,120)
-		speech_timer.start()
+	
+	wear_timer.wait_time = 0.1
+	
+	# Connect signals
 	Global.waveStart.connect(waveStart)
 	Global.scorePoint.connect(waveEnd)
 	Global.resetRates.connect(resetRate)
 	
+	# Set score amount label
 	if val > 0:
 		score_amount.text = str("+", val)
 	elif val < 0:
 		score_amount.text = str(val)
 	else:
-		if mood:
-			score_amount.text = "+-"
-		else:
+		if chip_name == "Down Plate":
 			score_amount.text = ""
+		else:
+			score_amount.text = "+-"
  
 
 ## Generates a random chip
 func random_chip():
-	# Set chip customizations
+	
+	# Set random chip customizations
 	chip_name = NAMES[Global.rng.randi_range(0, NAMES.size() - 1)]
 	mood = MOODS.values().pick_random()
 	sprite = SPRITES[Global.rng.randi_range(0, SPRITES.size() - 1)]
+	color = Color(Global.rng.randf_range(0, 1), Global.rng.randf_range(0, 1), Global.rng.randf_range(0, 1))
 	
-	# Set chip functions
+	# Set random chip functions
 	var new_func = VALUE_FUNCTIONS.values().pick_random().new()
 	functions.append(new_func)
 	val += new_func.amount
 	new_func = MOVE_FUNCTIONS.values().pick_random().new()
 	functions.append(new_func)
 	dir += new_func.dir
-	color = Color(Global.rng.randf_range(0, 1), Global.rng.randf_range(0, 1), Global.rng.randf_range(0, 1))
 	pass
 
 
 func _process(delta: float) -> void:
+	
+	# Cooldown the chip
+	coolDown(delta)
+	
+	# Display speech bubble
 	if !speech_seen:
 		speech_bubble.visible = true
+		
 	else:
 		speech_bubble.visible = false
-	coolDown(delta)
+	
 	if draggable:
+		scale = Vector2(1.05, 1.05)
+	else:
+		scale = Vector2(1, 1)
+	
+	# Check if being hovered over
+	if draggable:
+		
 		speech_seen = true
+		
+		# Set info page
 		if !Global.has_info:
 			Global.setinfo(self)
+		
+		# Pick up logic
 		if Input.is_action_just_pressed("click") and !glued:
+			
+			Global.dragging = self
 			Global.resetRates.emit()
 			Engine.time_scale = 0
 			initial_pos = global_position
 			offset = get_global_mouse_position() - global_position
 			Global.is_dragging = true
 		
+		# Drag logic
 		if Global.is_dragging:
-			if Input.is_action_pressed("click"):
+			if Input.is_action_pressed("click") and Global.dragging == self:
 				global_position = get_global_mouse_position() - offset
-			elif Input.is_action_just_released("click"):
+			
+			elif Input.is_action_just_released("click") or Global.dragging != self:
 				
-				Global.is_dragging = false
+				if Global.dragging == self:
+					Global.dragging = null
+				
 				var tween = get_tree().create_tween()
+				
 				if in_zone:
+					
 					if loc is Vector2:
 						Global.grid[loc.x][loc.y] = self
+					
 					if loc is int:
 						Global.hand[loc] = self
+					
 					if loc is String:
 						if loc == "next_summon":
 							Global.next_summon = self
+					
 					tween.tween_property(self, "global_position", body_ref.global_position, 0.15).set_ease(Tween.EASE_IN_OUT)
 				else:
 					tween.tween_property(self, "global_position", initial_pos, 0.15).set_ease(Tween.EASE_IN_OUT)
 				Engine.time_scale = 1
+				Global.is_dragging = false
 	pass
 
 
@@ -233,15 +267,14 @@ func sendToHand(sendTo: int = -1):
 func _on_area_2d_mouse_entered() -> void:
 	if not Global.is_dragging:
 		draggable = true
-		scale = Vector2(1.05, 1.05)
 	pass
 
 
 func _on_area_2d_mouse_exited() -> void:
 	if not Global.is_dragging:
 		draggable = false
-		scale = Vector2(1, 1)
 		Global.clearinfo()
+		print_debug("joe")
 	pass
 
 
@@ -357,12 +390,8 @@ func resetRate():
 
 
 func _speech_trigger() -> void:
-	speech_timer.wait_time = Global.rng.randf_range(5,120)
 	speech = "joe" # TEMP
-	if draggable:
-		Global.clearinfo()
-		Global.setinfo(self)
-	else:
+	if !draggable:
 		speech_seen = false
 	await get_tree().create_timer(10.0).timeout 
 	speech = ""

@@ -23,6 +23,4 @@ func check_bounds(target: Vector2, particle: Node, current_pos: Vector2):
 		new_target.x = 0
 	elif target.x >= Global.WIDTH:
 		new_target.x = Global.WIDTH - 1
-	if new_target == current_pos:
-		new_target = Vector2(0, 1)
 	return new_target
